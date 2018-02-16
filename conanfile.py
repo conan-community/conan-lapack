@@ -53,3 +53,6 @@ conan_basic_setup()
 
     def package_info(self):
         self.cpp_info.libs = ["lapacke", "lapack", "cblas", "blas"]
+
+    def package_id(self):
+        self.info.settings.compiler = "ANY"
