@@ -8,12 +8,17 @@ class lapackConan(ConanFile):
     version = "3.7.1"
     url = "https://github.com/Reference-LAPACK"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False]}
-    default_options = "shared=True"
+    options = {"shared": [True, False], "CMAKE_GNUtoMS": [True, False]}
+    default_options = "shared=True", "CMAKE_GNUtoMS=False"
     generators = "cmake"
+    build_requires = "mingw_installer/1.0@conan/stable"
 
     def package_id(self):
-        self.info.settings.compiler = "ANY"
+        if self.options.CMAKE_GNUtoMS:
+            self.info.settings.compiler = "Visual Studio"
+            self.info.settings.compiler.version = "ANY"
+            self.info.settings.compiler.runtime = "ANY"
+            self.info.settings.compiler.toolset = "ANY"
 
     def source(self):
         source_url = ("%s/%s/archive/v%s.zip" % (self.url, self.name, self.version))
@@ -26,6 +31,7 @@ conan_basic_setup()
 
     def build(self):
         cmake = CMake(self)
+        cmake.definitions["CMAKE_GNUtoMS"] = self.options.CMAKE_GNUtoMS
         cmake.definitions["BUILD_TESTING"] = False
         cmake.definitions["LAPACKE"] = True
         cmake.definitions["CBLAS"] = True
@@ -52,4 +58,4 @@ conan_basic_setup()
         self.copy(pattern="*lapack*.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ["lapacke", "lapack", "cblas", "blas"]
+        self.cpp_info.libs = ["liblapacke", "liblapack", "libcblas", "libblas"]

@@ -59,7 +59,7 @@
 
 /* Includes */
 #include <stdio.h>
-#include <LAPACKE/include/lapacke.h>
+#include <lapacke.h>
 
 /* Main program */
 int main (int argc, const char * argv[])
