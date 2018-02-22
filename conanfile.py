@@ -64,4 +64,5 @@ conan_basic_setup()
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
-        self.cpp_info.libs.remove("objects")
+        if "objects" in self.cpp_info.libs:
+            self.cpp_info.libs.remove("objects")
