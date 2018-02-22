@@ -6,6 +6,8 @@ import os
 class lapackConan(ConanFile):
     name = "lapack"
     version = "3.7.1"
+    description = """LAPACK is a library of Fortran subroutines for solving the most commonly
+occurring problems in numerical linear algebra"""
     url = "https://github.com/Reference-LAPACK"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "CMAKE_GNUtoMS": [True, False]}
@@ -19,6 +21,9 @@ class lapackConan(ConanFile):
             self.info.settings.compiler.version = "ANY"
             self.info.settings.compiler.runtime = "ANY"
             self.info.settings.compiler.toolset = "ANY"
+
+    def configure(self):
+        del self.settings.compiler.libcxx
 
     def source(self):
         source_url = ("%s/%s/archive/v%s.zip" % (self.url, self.name, self.version))
@@ -58,4 +63,4 @@ conan_basic_setup()
         self.copy(pattern="*lapack*.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ["liblapacke", "liblapack", "libcblas", "libblas"]
+        self.cpp_info.libs = tools.collect_libs(self)
