@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from conans import ConanFile, CMake, tools
 from glob import glob
 import os
@@ -14,6 +11,9 @@ class lapackConan(ConanFile):
     options = {"shared": [True, False]}
     default_options = "shared=True"
     generators = "cmake"
+
+    def package_id(self):
+        self.info.settings.compiler = "ANY"
 
     def source(self):
         source_url = ("%s/%s/archive/v%s.zip" % (self.url, self.name, self.version))
@@ -53,6 +53,3 @@ conan_basic_setup()
 
     def package_info(self):
         self.cpp_info.libs = ["lapacke", "lapack", "cblas", "blas"]
-
-    def package_id(self):
-        self.info.settings.compiler = "ANY"
