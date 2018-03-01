@@ -32,5 +32,4 @@ if __name__ == "__main__":
         remotes=upload_remote)
 
     builder.add_common_builds(shared_option_name="lapack:shared", pure_c=True)
-    builder.add(options={"lapack:CMAKE_GNUtoMS":True})
     builder.run()

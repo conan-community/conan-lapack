@@ -24,4 +24,4 @@ pip install conan_package_tools
 
 conan user
 
-apt-get install gfortran
+sudo apt-get install gfortran
