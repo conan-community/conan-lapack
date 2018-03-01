@@ -23,3 +23,5 @@ pip install conan --upgrade
 pip install conan_package_tools
 
 conan user
+
+apt-get install gfortran
