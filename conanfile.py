@@ -13,7 +13,6 @@ occurring problems in numerical linear algebra"""
     options = {"shared": [True, False], "CMAKE_GNUtoMS": [True, False]}
     default_options = "shared=True", "CMAKE_GNUtoMS=False"
     generators = "cmake"
-    build_requires = "mingw_installer/1.0@conan/stable"
 
     def package_id(self):
         if self.options.CMAKE_GNUtoMS:
@@ -33,6 +32,10 @@ occurring problems in numerical linear algebra"""
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 """)
+
+    def build_requirements(self):
+         if self.settings.os == "Windows":
+            self.build_requires("mingw_installer/1.0@conan/stable")
 
     def build(self):
         cmake = CMake(self)
