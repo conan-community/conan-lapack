@@ -33,5 +33,5 @@ if __name__ == "__main__":
         remotes=upload_remote,
         docker_entry_script=command)
 
-    builder.add_common_builds(shared_option_name="lapack:shared", pure_c=True)
+    builder.add_common_builds(pure_c=True)
     builder.run()
