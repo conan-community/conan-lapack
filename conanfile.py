@@ -10,8 +10,8 @@ class lapackConan(ConanFile):
 occurring problems in numerical linear algebra"""
     url = "https://github.com/Reference-LAPACK"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "CMAKE_GNUtoMS": [True, False]}
-    default_options = "shared=True", "CMAKE_GNUtoMS=False"
+    options = {"CMAKE_GNUtoMS": [True, False]}
+    default_options = "CMAKE_GNUtoMS=False"
     generators = "cmake"
 
     def package_id(self):
@@ -39,6 +39,7 @@ conan_basic_setup()
 
     def build(self):
         cmake = CMake(self)
+        cmake.definitions["BUILD_SHARED_LIBS"] = True
         cmake.definitions["CMAKE_GNUtoMS"] = self.options.CMAKE_GNUtoMS
         cmake.definitions["BUILD_TESTING"] = False
         cmake.definitions["LAPACKE"] = True
