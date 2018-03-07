@@ -1,5 +1,5 @@
 from conans import ConanFile, CMake, tools
-from glob import glob
+from conans.tools import os_info, SystemPackageTool
 import os
 
 
@@ -8,7 +8,8 @@ class lapackConan(ConanFile):
     version = "3.7.1"
     description = """LAPACK is a library of Fortran subroutines for solving the most commonly
 occurring problems in numerical linear algebra"""
-    url = "https://github.com/Reference-LAPACK"
+    url = "https://github.com/conan-community/conan-lapack"
+    homepage = "https://github.com/Reference-LAPACK/lapack"
     settings = "os", "arch", "compiler", "build_type"
     options = {"CMAKE_GNUtoMS": [True, False]}
     default_options = "CMAKE_GNUtoMS=False"
@@ -25,7 +26,7 @@ occurring problems in numerical linear algebra"""
         del self.settings.compiler.libcxx
 
     def source(self):
-        source_url = ("%s/%s/archive/v%s.zip" % (self.url, self.name, self.version))
+        source_url = ("%s/archive/v%s.zip" % (self.homepage, self.version))
         tools.get(source_url)
         os.rename("%s-%s" % (self.name, self.version), "sources")
         tools.replace_in_file("sources/CMakeLists.txt", "project(LAPACK Fortran C)", """project(LAPACK Fortran C)
