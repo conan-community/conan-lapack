@@ -1,3 +1,6 @@
+env:
+   global:
+     - CONAN_DOCKER_32_IMAGES: 1
 linux: &linux
    os: linux
    sudo: required
