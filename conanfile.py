@@ -37,6 +37,12 @@ conan_basic_setup()
          if self.settings.os == "Windows":
             self.build_requires("mingw_installer/1.0@conan/stable")
 
+    def system_requirements(self):
+        if os_info.is_linux:
+            pack_name = "gfortran"
+            installer = SystemPackageTool()
+            installer.install(pack_name)
+
     def build(self):
         cmake = CMake(self)
         cmake.definitions["BUILD_SHARED_LIBS"] = True
