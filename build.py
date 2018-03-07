@@ -22,7 +22,6 @@ if __name__ == "__main__":
     login_username = "conanbot"
     reference = "{0}/{1}".format(name, version)
     upload_remote = "https://api.bintray.com/conan/conan-community/{0}".format(username)
-    command = "sudo apt-get update && sudo apt-get install -y gfortran" if os.getenv("CONAN_GCC_VERSIONS") else None
 
     builder = ConanMultiPackager(
         username=username,
@@ -30,8 +29,7 @@ if __name__ == "__main__":
         login_username=login_username,
         reference=reference,
         upload=upload_remote,
-        remotes=upload_remote,
-        docker_entry_script=command)
+        remotes=upload_remote)
 
     builder.add_common_builds(pure_c=True)
     builder.run()
