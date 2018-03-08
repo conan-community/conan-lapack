@@ -39,10 +39,12 @@ conan_basic_setup()
             self.build_requires("mingw_installer/1.0@conan/stable")
 
     def system_requirements(self):
-        if not os_info.is_windows:
-            pack_name = "gfortran"
+        if os_info.is_linux:
             installer = SystemPackageTool()
-            installer.install(pack_name)
+            installer.install("gfortran")
+        if os_info.is_macos:
+            installer = SystemPackageTool()
+            installer.install("gcc")
 
     def build(self):
         cmake = CMake(self)
