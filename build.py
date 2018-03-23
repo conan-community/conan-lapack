@@ -1,5 +1,5 @@
+import re
 from conan.packager import ConanMultiPackager
-import os, re, platform
 
 
 def get_value_from_recipe(search_string):
@@ -24,6 +24,8 @@ if __name__ == "__main__":
     upload_remote = "https://api.bintray.com/conan/conan-community/{0}".format(username)
 
     builder = ConanMultiPackager(
+        stable_branch_pattern="stable/*",
+        upload_only_when_stable=True,
         username=username,
         channel=channel,
         login_username=login_username,
