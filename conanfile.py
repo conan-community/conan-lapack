@@ -1,9 +1,9 @@
+import os
 from conans import ConanFile, CMake, tools
 from conans.tools import os_info, SystemPackageTool
-import os
 
 
-class lapackConan(ConanFile):
+class LapackConan(ConanFile):
     name = "lapack"
     version = "3.7.1"
     description = """LAPACK is a library of Fortran subroutines for solving the most commonly
@@ -29,13 +29,14 @@ occurring problems in numerical linear algebra"""
         source_url = ("%s/archive/v%s.zip" % (self.homepage, self.version))
         tools.get(source_url)
         os.rename("%s-%s" % (self.name, self.version), "sources")
-        tools.replace_in_file("sources/CMakeLists.txt", "project(LAPACK Fortran C)", """project(LAPACK Fortran C)
+        tools.replace_in_file("sources/CMakeLists.txt", "project(LAPACK Fortran C)",
+                              """project(LAPACK Fortran C)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 """)
 
     def build_requirements(self):
-         if self.settings.os == "Windows":
+        if self.settings.os == "Windows":
             self.build_requires("mingw_installer/1.0@conan/stable")
 
     def system_requirements(self):
@@ -44,7 +45,7 @@ conan_basic_setup()
             installer.install("gfortran")
         if os_info.is_macos:
             installer = SystemPackageTool()
-            installer.install("gcc")
+            installer.install("gcc", update=True, force=True)
 
     def build(self):
         cmake = CMake(self)
@@ -60,7 +61,8 @@ conan_basic_setup()
         cmake.build(target="lapacke")
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src="sources", ignore_case=True, keep_path=False)
+        self.copy(pattern="LICENSE", dst="licenses", src="sources", ignore_case=True,
+                  keep_path=False)
         self.copy(pattern="*.h", dst="include", src="sources", keep_path=False)
         self.copy(pattern="*blas*.dll", dst="bin", src="bin", keep_path=False)
         self.copy(pattern="*lapack*.dll", dst="bin", src="bin", keep_path=False)
