@@ -41,7 +41,8 @@ if __name__ == "__main__":
                     "compiler": "gcc",
                     "compiler.version": "4.9",
                     "compiler.threads": "posix",
-                    "compiler.exception": "seh"}
+                    "compiler.exception": "seh",
+                    "compiler.libcxx": "libstdc++"}
         builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
                     build_requires={})
         settings["arch"] = "x86_64"
