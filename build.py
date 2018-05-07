@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     builder.add_common_builds(pure_c=True)
     if platform.system() == "Windows":
-        settings = {"arch": "x86",
+        settings = {"arch": "x86_64",
                     "build_type": "Debug",
                     "compiler": "gcc",
                     "compiler.version": "7",
@@ -45,14 +45,7 @@ if __name__ == "__main__":
                     "compiler.libcxx": "libstdc++"}
         builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
                     build_requires={})
-        settings["arch"] = "x86_64"
-        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
-                    build_requires={})
-        settings["arch"] = "x86"
         settings["build_type"] = "Release"
-        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
-                    build_requires={})
-        settings["arch"] = "x86_64"
         builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
                     build_requires={})
     builder.run()
