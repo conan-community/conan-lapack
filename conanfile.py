@@ -12,8 +12,8 @@ class LapackConan(ConanFile):
 occurring problems in numerical linear algebra"""
     url = "https://github.com/conan-community/conan-lapack"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"CMAKE_GNUtoMS": [True, False]}
-    default_options = "CMAKE_GNUtoMS=False"
+    options = {"visual_studio": [True, False]}
+    default_options = "visual_studio=False"
     generators = "cmake"
 
     @property
@@ -21,7 +21,7 @@ occurring problems in numerical linear algebra"""
         return "sources"
 
     def package_id(self):
-        if self.options.CMAKE_GNUtoMS:
+        if self.options.visual_studio:
             self.info.settings.compiler = "Visual Studio"
             self.info.settings.compiler.version = "ANY"
             self.info.settings.compiler.runtime = "ANY"
@@ -29,6 +29,8 @@ occurring problems in numerical linear algebra"""
 
     def configure(self):
         del self.settings.compiler.libcxx
+        if self.settings.compiler == "Visual Studio" and not self.options.visual_studio:
+            raise Exception("This library needs option 'visual_studio=True' to be consumed")
 
     def source(self):
         source_url = ("%s/archive/v%s.zip" % (self.homepage, self.version))
@@ -44,18 +46,20 @@ conan_basic_setup()""")
             self.build_requires("mingw_installer/1.0@conan/stable")
 
     def system_requirements(self):
+        installer = SystemPackageTool()
         if os_info.is_linux:
-            installer = SystemPackageTool()
             installer.install("gfortran")
         if (os_info.is_macos and self.settings.compiler == "apple-clang" and
-                self.settings.compiler.version not in ["8.1", "9.0"]):
-            installer = SystemPackageTool()
+                self.settings.compiler.version in ["8.1", "9.0"]):
             installer.install("gcc", update=True, force=True)
 
     def build(self):
+        if self.settings.compiler == "Visual Studio":
+            raise Exception("This library cannot be built with Visual Studio. Please use MinGW to "
+                            "build it and option 'visual_studio=True' to build and consume.")
         cmake = CMake(self)
         cmake.definitions["BUILD_SHARED_LIBS"] = True
-        cmake.definitions["CMAKE_GNUtoMS"] = self.options.CMAKE_GNUtoMS
+        cmake.definitions["CMAKE_GNUtoMS"] = self.options.visual_studio
         cmake.definitions["BUILD_TESTING"] = False
         cmake.definitions["LAPACKE"] = True
         cmake.definitions["CBLAS"] = True
@@ -71,18 +75,25 @@ conan_basic_setup()""")
         self.copy(pattern="*.h", dst="include", src=self.source_subfolder, keep_path=False)
         self.copy(pattern="*blas*.dll", dst="bin", src="bin", keep_path=False)
         self.copy(pattern="*lapack*.dll", dst="bin", src="bin", keep_path=False)
+        if self.options.visual_studio:
+            self.copy(pattern="*blas*.lib", dst="lib", src="lib", keep_path=False)
+            self.copy(pattern="*lapack*.lib", dst="lib", src="lib", keep_path=False)
+        else:
+            self.copy(pattern="*blas*.dll.a", dst="lib", src="lib", keep_path=False)
+            self.copy(pattern="*lapack*.dll.a", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*blas*.so*", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*lapack*.so*", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*blas*.dylib", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*lapack*.dylib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*blas*.lib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*lapack*.lib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*blas*.a", dst="lib", src=".", keep_path=False)
-        self.copy(pattern="*lapack*.a", dst="lib", src=".", keep_path=False)
-        self.copy(pattern="*blas*.a", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*lapack*.a", dst="lib", src="lib", keep_path=False)
+        self.copy(pattern="*blas.a", dst="lib", src="lib", keep_path=False)
+        self.copy(pattern="*lapack.a", dst="lib", src="lib", keep_path=False)
+        for bin_path in self.deps_cpp_info.bin_paths: # Copy MinGW dlls for Visual Studio consumers
+            self.copy(pattern="*seh*.dll", dst="bin", src=bin_path, keep_path=False)
+            self.copy(pattern="*sjlj*.dll", dst="bin", src=bin_path, keep_path=False)
+            self.copy(pattern="*dwarf2*.dll", dst="bin", src=bin_path, keep_path=False)
+            self.copy(pattern="*quadmath*.dll", dst="bin", src=bin_path, keep_path=False)
+            self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
+            self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
-        if "objects" in self.cpp_info.libs:
-            self.cpp_info.libs.remove("objects")
