@@ -27,6 +27,10 @@ occurring problems in numerical linear algebra"""
             self.info.settings.compiler.runtime = "ANY"
             self.info.settings.compiler.toolset = "ANY"
 
+    def config_options(self):
+        if self.settings.os != "Windows":
+            del self.options.visual_studio
+
     def configure(self):
         del self.settings.compiler.libcxx
         if self.settings.compiler == "Visual Studio" and not self.options.visual_studio:

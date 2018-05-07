@@ -1,3 +1,4 @@
+import platform
 import re
 from conan.packager import ConanMultiPackager
 
@@ -34,4 +35,23 @@ if __name__ == "__main__":
         remotes=upload_remote)
 
     builder.add_common_builds(pure_c=True)
+    if platform.system() == "Windows":
+        settings = {"arch": "x86",
+                    "build_type": "Debug",
+                    "compiler": "gcc",
+                    "compiler.version": "4.9",
+                    "compiler.threads": "posix",
+                    "compiler.exception": "seh"}
+        builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
+                    build_requires={})
+        settings["arch"] = "x86_64"
+        builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
+                    build_requires={})
+        settings["arch"] = "x86"
+        settings["build_type"] = "Release"
+        builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
+                    build_requires={})
+        settings["arch"] = "x86_64"
+        builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
+                    build_requires={})
     builder.run()
