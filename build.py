@@ -39,20 +39,20 @@ if __name__ == "__main__":
         settings = {"arch": "x86",
                     "build_type": "Debug",
                     "compiler": "gcc",
-                    "compiler.version": "4.9",
+                    "compiler.version": "7",
                     "compiler.threads": "posix",
                     "compiler.exception": "seh",
                     "compiler.libcxx": "libstdc++"}
-        builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
+        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
                     build_requires={})
         settings["arch"] = "x86_64"
-        builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
+        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
                     build_requires={})
         settings["arch"] = "x86"
         settings["build_type"] = "Release"
-        builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
+        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
                     build_requires={})
         settings["arch"] = "x86_64"
-        builder.add(settings=settings, options={"lapack:visual_studio": True}, env_vars={},
+        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
                     build_requires={})
     builder.run()
