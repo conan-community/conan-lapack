@@ -49,6 +49,8 @@ conan_basic_setup()""")
         installer = SystemPackageTool()
         if os_info.is_linux:
             installer.install("gfortran")
+        if os_info.is_macos:
+            installer.install("gcc", update=True, force=True)
 
     def build(self):
         if self.settings.compiler == "Visual Studio":
