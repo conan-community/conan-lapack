@@ -53,7 +53,11 @@ conan_basic_setup()""")
             else:
                 installer.install("gfortran")
         if os_info.is_macos:
-            installer.install("gcc", update=True, force=True)
+            try:
+                installer.install("gcc", update=True, force=True)
+            except Exception:
+                self.output.warn("brew install gcc failed. Tying to fix it with 'brew link'")
+                self.run("brew link --overwrite gcc")
 
     def build(self):
         if self.settings.compiler == "Visual Studio":
