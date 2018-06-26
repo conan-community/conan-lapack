@@ -1,3 +1,4 @@
+import platform
 import re
 from conan.packager import ConanMultiPackager
 
@@ -34,4 +35,17 @@ if __name__ == "__main__":
         remotes=upload_remote)
 
     builder.add_common_builds(pure_c=True)
+    if platform.system() == "Windows":
+        settings = {"arch": "x86_64",
+                    "build_type": "Debug",
+                    "compiler": "gcc",
+                    "compiler.version": "7",
+                    "compiler.threads": "posix",
+                    "compiler.exception": "seh",
+                    "compiler.libcxx": "libstdc++"}
+        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
+                    build_requires={"*": ["mingw_installer/1.0@conan/stable"]})
+        settings["build_type"] = "Release"
+        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
+                    build_requires={"*": ["mingw_installer/1.0@conan/stable"]})
     builder.run()
