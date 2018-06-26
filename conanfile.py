@@ -48,7 +48,10 @@ conan_basic_setup()""")
     def system_requirements(self):
         installer = SystemPackageTool()
         if os_info.is_linux:
-            installer.install("gfortran")
+            if tools.os_info.linux_distro == "arch":
+                installer.install("gcc-fortran")
+            else:
+                installer.install("gfortran")
         if os_info.is_macos:
             installer.install("gcc", update=True, force=True)
 
