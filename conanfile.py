@@ -12,8 +12,8 @@ class LapackConan(ConanFile):
 occurring problems in numerical linear algebra"""
     url = "https://github.com/conan-community/conan-lapack"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"visual_studio": [True, False]}
-    default_options = "visual_studio=False"
+    options = {"shared": [True, False], "visual_studio": [True, False]}
+    default_options = "shared=False", "visual_studio=False"
     generators = "cmake"
 
     @property
@@ -64,7 +64,7 @@ conan_basic_setup()""")
             raise Exception("This library cannot be built with Visual Studio. Please use MinGW to "
                             "build it and option 'visual_studio=True' to build and consume.")
         cmake = CMake(self)
-        cmake.definitions["BUILD_SHARED_LIBS"] = True
+        cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
         cmake.definitions["CMAKE_GNUtoMS"] = self.options.visual_studio
         cmake.definitions["BUILD_TESTING"] = False
         cmake.definitions["LAPACKE"] = True
@@ -92,7 +92,7 @@ conan_basic_setup()""")
         self.copy(pattern="*blas*.dylib", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*lapack*.dylib", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*blas.a", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*lapack.a", dst="lib", src="lib", keep_path=False)
+        self.copy(pattern="*lapack*.a", dst="lib", src="lib", keep_path=False)
         for bin_path in self.deps_cpp_info.bin_paths: # Copy MinGW dlls for Visual Studio consumers
             self.copy(pattern="*seh*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*sjlj*.dll", dst="bin", src=bin_path, keep_path=False)
@@ -102,4 +102,5 @@ conan_basic_setup()""")
             self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        # the order is important for static builds
+        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran"]
