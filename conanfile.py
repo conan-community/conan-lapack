@@ -47,10 +47,11 @@ conan_basic_setup()""")
     def system_requirements(self):
         installer = SystemPackageTool()
         if os_info.is_linux:
-            if tools.os_info.linux_distro == "arch":
+            if tools.os_info.linux_distro == "arch" or tools.os_info.linux_distro == "redhat" or tools.os_info.linux_distro == "fedora" or tools.os_info.linux_distro == "centos":
                 installer.install("gcc-fortran")
             else:
                 installer.install("gfortran")
+                installer.install("libgfortran-{}-dev".format(int(float(str(self.settings.compiler.version)))))
         if os_info.is_macos:
             try:
                 installer.install("gcc", update=True, force=True)
@@ -68,6 +69,11 @@ conan_basic_setup()""")
         cmake.definitions["BUILD_TESTING"] = False
         cmake.definitions["LAPACKE"] = True
         cmake.definitions["CBLAS"] = True
+        if not self.options.shared:
+            cmake.definitions["CMAKE_Fortran_FLAGS"] = "-fPIC"
+            cmake.definitions["CMAKE_C_FLAGS"] = "-fPIC"
+            cmake.definitions["CMAKE_CXX_FLAGS"] = "-fPIC"
+
         cmake.configure(source_folder=self.source_subfolder)
         cmake.build(target="blas")
         cmake.build(target="cblas")
