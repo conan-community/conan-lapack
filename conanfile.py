@@ -2,7 +2,6 @@ import os
 from conans import ConanFile, CMake, tools
 from conans.tools import os_info, SystemPackageTool
 
-
 class LapackConan(ConanFile):
     name = "lapack"
     version = "3.7.1"
@@ -78,7 +77,7 @@ conan_basic_setup()""")
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self.source_subfolder, ignore_case=True,
                   keep_path=False)
-        self.copy(pattern="*.h", dst="include", src=self.source_subfolder, keep_path=False)
+        self.copy(pattern="*.h", dst="include", src="include", keep_path=False)
         self.copy(pattern="*blas*.dll", dst="bin", src="bin", keep_path=False)
         self.copy(pattern="*lapack*.dll", dst="bin", src="bin", keep_path=False)
         if self.options.visual_studio:
