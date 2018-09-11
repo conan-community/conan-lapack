@@ -51,10 +51,11 @@ conan_basic_setup()""")
                 installer.install("gcc-fortran")
             else:
                 installer.install("gfortran")
-                if self.settings.compiler.version < 5:
-                    installer.install("libgfortran-4.8-dev")
-                else:
-                    installer.install("libgfortran-{}-dev".format(int(float(str(self.settings.compiler.version)))))
+                if self.settings.compiler == "gcc":
+                    if self.settings.compiler.version < 5:
+                        installer.install("libgfortran-4.8-dev")
+                    else:
+                        installer.install("libgfortran-{}-dev".format(int(float(str(self.settings.compiler.version)))))
         if os_info.is_macos:
             try:
                 installer.install("gcc", update=True, force=True)
