@@ -11,8 +11,8 @@ class LapackConan(ConanFile):
 occurring problems in numerical linear algebra"""
     url = "https://github.com/conan-community/conan-lapack"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "visual_studio": [True, False]}
-    default_options = "shared=False", "visual_studio=False"
+    options = {"shared": [True, False], "fPIC": [True, False], "visual_studio": [True, False]}
+    default_options = "shared=False", "visual_studio=False", "fPIC=True"
     generators = "cmake"
 
     @property
@@ -31,6 +31,10 @@ occurring problems in numerical linear algebra"""
         if self.settings.compiler == "Visual Studio" and not self.options.visual_studio:
             raise Exception("This library needs option 'visual_studio=True' to be consumed")
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def source(self):
         source_url = ("%s/archive/v%s.zip" % (self.homepage, self.version))
         tools.get(source_url)
@@ -47,15 +51,19 @@ conan_basic_setup()""")
     def system_requirements(self):
         installer = SystemPackageTool()
         if os_info.is_linux:
-            if tools.os_info.linux_distro == "arch" or tools.os_info.linux_distro == "redhat" or tools.os_info.linux_distro == "fedora" or tools.os_info.linux_distro == "centos":
+            if (tools.os_info.linux_distro == "arch" or 
+                    tools.os_info.linux_distro == "redhat" or 
+                    tools.os_info.linux_distro == "fedora" or 
+                    tools.os_info.linux_distro == "centos"):
                 installer.install("gcc-fortran")
             else:
                 installer.install("gfortran")
+                versionint = int(float(str(self.settings.compiler.version)))
                 if self.settings.compiler == "gcc":
-                    if self.settings.compiler.version < 5:
+                    if versionint < 5:
                         installer.install("libgfortran-4.8-dev")
                     else:
-                        installer.install("libgfortran-{}-dev".format(int(float(str(self.settings.compiler.version)))))
+                        installer.install("libgfortran-{}-dev".format(versionint))
         if os_info.is_macos:
             try:
                 installer.install("gcc", update=True, force=True)
@@ -73,10 +81,6 @@ conan_basic_setup()""")
         cmake.definitions["BUILD_TESTING"] = False
         cmake.definitions["LAPACKE"] = True
         cmake.definitions["CBLAS"] = True
-        if not self.options.shared:
-            cmake.definitions["CMAKE_Fortran_FLAGS"] = "-fPIC"
-            cmake.definitions["CMAKE_C_FLAGS"] = "-fPIC"
-            cmake.definitions["CMAKE_CXX_FLAGS"] = "-fPIC"
 
         cmake.configure(source_folder=self.source_subfolder)
         cmake.build(target="blas")
