@@ -116,6 +116,8 @@ conan_basic_setup()""")
 
     def package_info(self):
         # the order is important for static builds
-        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas"]
+        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran"]
+        self.cpp_info.libdirs = ["lib"]
         if not tools.os_info.is_macos:
-            self.cpp_info.libs.append("gfortran")
+            self.run("brew info --json=v1 gcc")
+            #self.cpp_info.libsdirs.append("gfortran")
