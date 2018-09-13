@@ -50,7 +50,7 @@ conan_basic_setup()""")
 
     def system_requirements(self):
         installer = SystemPackageTool()
-        if os_info.is_linux:
+        if tools.os_info.is_linux:
             if (tools.os_info.linux_distro == "arch" or 
                     tools.os_info.linux_distro == "redhat" or 
                     tools.os_info.linux_distro == "fedora" or 
@@ -58,13 +58,13 @@ conan_basic_setup()""")
                 installer.install("gcc-fortran")
             else:
                 installer.install("gfortran")
-                versionint = int(float(str(self.settings.compiler.version)))
+                versionfloat = float(str(self.settings.compiler.version))
                 if self.settings.compiler == "gcc":
-                    if versionint < 5:
-                        installer.install("libgfortran-4.8-dev")
+                    if versionfloat < 5.0:
+                        installer.install("libgfortran-{}-dev".format(versionfloat))
                     else:
-                        installer.install("libgfortran-{}-dev".format(versionint))
-        if os_info.is_macos:
+                        installer.install("libgfortran-{}-dev".format(int(versionfloat)))
+        if tools.os_info.is_macos:
             try:
                 installer.install("gcc", update=True, force=True)
             except Exception:
@@ -116,4 +116,6 @@ conan_basic_setup()""")
 
     def package_info(self):
         # the order is important for static builds
-        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran"]
+        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas"]
+        if not tools.os_info.is_macos:
+            self.cpp_info.libs.append("gfortran")
