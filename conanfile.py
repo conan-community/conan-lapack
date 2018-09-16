@@ -114,10 +114,15 @@ conan_basic_setup()""")
             self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
 
-        if tools.os_info.is_macos:
-            self.run("brew info --json=v1 gcc")
 
     def package_info(self):
         # the order is important for static builds
         self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran"]
         self.cpp_info.libdirs = ["lib"]
+        if tools.os_info.is_macos:
+            brewout = StringIO()
+            self.run("brew ls --verbose gcc | grep libgfortran", output=brewout)
+            gflibdirs = brewout.getvalue().split('\n');
+            for i in range(0, len(gflibdirs)):
+                gflibdirs[i] = os.path.dirname(gflibdirs[i])
+            libdirs.extend(set(gflibdirs))
