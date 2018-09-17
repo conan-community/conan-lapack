@@ -126,4 +126,4 @@ conan_basic_setup()""")
             gflibdirs = brewout.getvalue().split('\n');
             for i in range(0, len(gflibdirs)):
                 gflibdirs[i] = os.path.dirname(gflibdirs[i])
-            libdirs.extend(set(gflibdirs))
+            self.cpp_info.libdirs.extend(set(gflibdirs))
