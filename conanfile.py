@@ -1,7 +1,12 @@
 import os
-from StringIO import StringIO
 from conans import ConanFile, CMake, tools
 from conans.tools import os_info, SystemPackageTool
+
+# python 2 / 3 StringIO import
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 class LapackConan(ConanFile):
     name = "lapack"
@@ -122,7 +127,7 @@ conan_basic_setup()""")
         self.cpp_info.libdirs = ["lib"]
         if tools.os_info.is_macos:
             brewout = StringIO()
-            self.run("brew ls --verbose gcc | grep libgfortran", output=brewout)
+            self.run("brew ls --verbose gcc | grep libgfortran | grep {}".format(self.settings.arch), output=brewout)
             gflibdirs = brewout.getvalue().split('\n');
             for i in range(0, len(gflibdirs)):
                 gflibdirs[i] = os.path.dirname(gflibdirs[i])
