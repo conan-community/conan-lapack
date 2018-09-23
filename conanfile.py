@@ -129,7 +129,7 @@ conan_basic_setup()""")
             brewout = StringIO()
             try:
                 self.run("brew ls --verbose gcc | grep libgfortran | grep {}".format(self.settings.arch), output=brewout)
-            except e as Exception:
+            except Exception as e:
                 raise Exception("Failed to run command: {}. Output: {}".format(e, brewout.getvalue()))
             gflibdirs = brewout.getvalue().split('\n');
             for i in range(0, len(gflibdirs)):
