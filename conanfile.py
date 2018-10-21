@@ -1,6 +1,6 @@
 import os
 from conans import ConanFile, CMake, tools
-from conans.tools import os_info, SystemPackageTool
+from conans.tools import SystemPackageTool
 
 # python 2 / 3 StringIO import
 try:
@@ -18,7 +18,7 @@ occurring problems in numerical linear algebra"""
     url = "https://github.com/conan-community/conan-lapack"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False], "visual_studio": [True, False]}
-    default_options = "shared=False", "visual_studio=False", "fPIC=True"
+    default_options = {"shared": False, "visual_studio": False, "fPIC": True}
     generators = "cmake"
 
     @property
