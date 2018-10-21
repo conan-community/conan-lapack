@@ -128,10 +128,8 @@ conan_basic_setup()""")
         if tools.os_info.is_macos:
             brewout = StringIO()
             try:
-                self.run("brew ls --verbose gcc | grep libgfortran | grep {}".format(self.settings.arch), output=brewout)
+                self.run("gfortran --print-file-name libgfortran.dylib", output=brewout)
             except Exception as e:
                 raise Exception("Failed to run command: {}. Output: {}".format(e, brewout.getvalue()))
-            gflibdirs = brewout.getvalue().split('\n');
-            for i in range(0, len(gflibdirs)):
-                gflibdirs[i] = os.path.dirname(gflibdirs[i])
-            self.cpp_info.libdirs.extend(set(gflibdirs))
+            lib = os.path.dirname(os.path.normpath(brewout.getvalue().strip()))
+            self.cpp_info.libdirs.append(lib)
