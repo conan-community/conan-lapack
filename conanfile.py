@@ -1,4 +1,5 @@
 import os
+import glob
 from conans import ConanFile, CMake, tools
 from conans.tools import SystemPackageTool
 
@@ -119,11 +120,17 @@ conan_basic_setup()""")
             self.copy(pattern="*quadmath*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
-
+        if self.options.visual_studio:
+            with tools.chdir(os.path.join(self.package_folder, "lib")):
+                libs = glob.glob("lib*.a")
+                for lib in libs:
+                    os.rename(lib, lib[3:-2] + ".lib")
 
     def package_info(self):
         # the order is important for static builds
-        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran"]
+        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas"]
+        if not self.options.visual_studio:
+            self.cpp_info.libs.append("gfortran")
         self.cpp_info.libdirs = ["lib"]
         if tools.os_info.is_macos:
             brewout = StringIO()
