@@ -113,13 +113,15 @@ conan_basic_setup()""")
         self.copy(pattern="*lapack*.dylib", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*blas.a", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*lapack*.a", dst="lib", src="lib", keep_path=False)
-        for bin_path in self.deps_cpp_info.bin_paths: # Copy MinGW dlls for Visual Studio consumers
+        for bin_path in self.deps_cpp_info.bin_paths:  # Copy MinGW dlls for Visual Studio consumers
             self.copy(pattern="*seh*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*sjlj*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*dwarf2*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*quadmath*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
+        for lib_path in self.deps_cpp_info.lib_paths:
+            self.copy(pattern="*gfortran*.a", dst="bin", src=lib_path, keep_path=False)
         if self.options.visual_studio:
             with tools.chdir(os.path.join(self.package_folder, "lib")):
                 libs = glob.glob("lib*.a")
@@ -128,9 +130,7 @@ conan_basic_setup()""")
 
     def package_info(self):
         # the order is important for static builds
-        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas"]
-        if not self.options.visual_studio:
-            self.cpp_info.libs.append("gfortran")
+        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran"]
         self.cpp_info.libdirs = ["lib"]
         if tools.os_info.is_macos:
             brewout = StringIO()
