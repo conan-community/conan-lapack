@@ -121,7 +121,7 @@ conan_basic_setup()""")
             self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
         for lib_path in self.deps_cpp_info.lib_paths:
-            self.copy(pattern="*gfortran*.a", dst="bin", src=lib_path, keep_path=False)
+            self.copy(pattern="*gfortran*.a", dst="lib", src=lib_path, keep_path=False)
         if self.options.visual_studio:
             with tools.chdir(os.path.join(self.package_folder, "lib")):
                 libs = glob.glob("lib*.a")
