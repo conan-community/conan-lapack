@@ -134,9 +134,7 @@ conan_basic_setup()""")
 
     def package_info(self):
         # the order is important for static builds
-        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran"]
-        if self.options.visual_studio:
-            self.cpp_info.libs.append("quadmath")
+        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran", "quadmath"]
         self.cpp_info.libdirs = ["lib"]
         if tools.os_info.is_macos:
             brewout = StringIO()
