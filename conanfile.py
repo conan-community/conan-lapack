@@ -1,4 +1,5 @@
 import os
+import shutil
 import glob
 from conans import ConanFile, CMake, tools
 from conans.tools import SystemPackageTool
@@ -121,16 +122,19 @@ conan_basic_setup()""")
             self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
         for lib_path in self.deps_cpp_info.lib_paths:
-            self.copy(pattern="*gfortran*.a", dst="lib", src=lib_path, keep_path=False)
+            self.copy(pattern="*gfortran.a", dst="lib", src=lib_path, keep_path=False)
+            self.copy(pattern="*quadmath.a", dst="lib", src=lib_path, keep_path=False)
         if self.options.visual_studio:
             with tools.chdir(os.path.join(self.package_folder, "lib")):
                 libs = glob.glob("lib*.a")
                 for lib in libs:
-                    os.rename(lib, lib[3:-2] + ".lib")
+                    vslib = lib[3:-2] + ".lib"
+                    self.output.info('renaming %s into %s' % (lib, vslib))
+                    shutil.move(lib, vslib)
 
     def package_info(self):
         # the order is important for static builds
-        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran"]
+        self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran", "quadmath"]
         self.cpp_info.libdirs = ["lib"]
         if tools.os_info.is_macos:
             brewout = StringIO()
