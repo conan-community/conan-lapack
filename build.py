@@ -43,9 +43,9 @@ if __name__ == "__main__":
                     "compiler.threads": "posix",
                     "compiler.exception": "seh",
                     "compiler.libcxx": "libstdc++"}
-        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
-                    build_requires={"*": ["mingw_installer/1.0@conan/stable"]})
+        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True, "lapack:shared": True},
+                    env_vars={}, build_requires={"*": ["mingw_installer/1.0@conan/stable"]})
         settings["build_type"] = "Release"
-        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True}, env_vars={},
-                    build_requires={"*": ["mingw_installer/1.0@conan/stable"]})
+        builder.add(settings=settings.copy(), options={"lapack:visual_studio": True, "lapack:shared": True},
+                    env_vars={}, build_requires={"*": ["mingw_installer/1.0@conan/stable"]})
     builder.run()

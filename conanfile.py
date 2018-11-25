@@ -10,6 +10,9 @@ try:
 except ImportError:
     from io import StringIO
 
+from conans.errors import ConanInvalidConfiguration
+
+
 class LapackConan(ConanFile):
     name = "lapack"
     version = "3.7.1"
@@ -36,8 +39,10 @@ occurring problems in numerical linear algebra"""
 
     def configure(self):
         del self.settings.compiler.libcxx
+        if self.options.visual_studio and not self.options.shared:
+            raise ConanInvalidConfiguration("only shared builds are supported for Visual Studio")
         if self.settings.compiler == "Visual Studio" and not self.options.visual_studio:
-            raise Exception("This library needs option 'visual_studio=True' to be consumed")
+            raise ConanInvalidConfiguration("This library needs option 'visual_studio=True' to be consumed")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -103,8 +108,12 @@ conan_basic_setup()""")
         self.copy(pattern="*blas*.dll", dst="bin", src="bin", keep_path=False)
         self.copy(pattern="*lapack*.dll", dst="bin", src="bin", keep_path=False)
         if self.options.visual_studio:
-            self.copy(pattern="*blas*.lib", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*lapack*.lib", dst="lib", src="lib", keep_path=False)
+            if self.options.shared:
+                self.copy(pattern="*blas*.dll.a", dst="lib", src="lib", keep_path=False)
+                self.copy(pattern="*lapack*.dll.a", dst="lib", src="lib", keep_path=False)
+            else:
+                self.copy(pattern="*blas*.lib", dst="lib", src="lib", keep_path=False)
+                self.copy(pattern="*lapack*.lib", dst="lib", src="lib", keep_path=False)
         else:
             self.copy(pattern="*blas*.dll.a", dst="lib", src="lib", keep_path=False)
             self.copy(pattern="*lapack*.dll.a", dst="lib", src="lib", keep_path=False)
@@ -112,8 +121,9 @@ conan_basic_setup()""")
         self.copy(pattern="*lapack*.so*", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*blas*.dylib", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="*lapack*.dylib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*blas.a", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*lapack*.a", dst="lib", src="lib", keep_path=False)
+        if not self.options.visual_studio:
+            self.copy(pattern="*blas.a", dst="lib", src="lib", keep_path=False)
+            self.copy(pattern="*lapack*.a", dst="lib", src="lib", keep_path=False)
         for bin_path in self.deps_cpp_info.bin_paths:  # Copy MinGW dlls for Visual Studio consumers
             self.copy(pattern="*seh*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*sjlj*.dll", dst="bin", src=bin_path, keep_path=False)
@@ -121,9 +131,6 @@ conan_basic_setup()""")
             self.copy(pattern="*quadmath*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
             self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
-        for lib_path in self.deps_cpp_info.lib_paths:
-            self.copy(pattern="*gfortran.a", dst="lib", src=lib_path, keep_path=False)
-            self.copy(pattern="*quadmath.a", dst="lib", src=lib_path, keep_path=False)
         if self.options.visual_studio:
             with tools.chdir(os.path.join(self.package_folder, "lib")):
                 libs = glob.glob("lib*.a")
@@ -135,6 +142,8 @@ conan_basic_setup()""")
     def package_info(self):
         # the order is important for static builds
         self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran", "quadmath"]
+        if self.options.visual_studio and self.options.shared:
+            self.cpp_info.libs = ["lapacke.dll.lib", "lapack.dll.lib", "blas.dll.lib", "cblas.dll.lib"]
         self.cpp_info.libdirs = ["lib"]
         if tools.os_info.is_macos:
             brewout = StringIO()
