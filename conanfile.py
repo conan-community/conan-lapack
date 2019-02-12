@@ -16,7 +16,7 @@ from conans.errors import ConanInvalidConfiguration
 class LapackConan(ConanFile):
     name = "lapack"
     version = "3.7.1"
-    license = "BSD 3-Clause"
+    license = "BSD-3-Clause"
     homepage = "https://github.com/Reference-LAPACK/lapack"
     description = """LAPACK is a library of Fortran subroutines for solving the most commonly
 occurring problems in numerical linear algebra"""
@@ -64,10 +64,8 @@ conan_basic_setup()""")
     def system_requirements(self):
         installer = SystemPackageTool()
         if tools.os_info.is_linux:
-            if (tools.os_info.linux_distro == "arch" or 
-                    tools.os_info.linux_distro == "redhat" or 
-                    tools.os_info.linux_distro == "fedora" or 
-                    tools.os_info.linux_distro == "centos"):
+            if tools.os_info.with_pacman or \
+                tools.os_info.with_yum:
                 installer.install("gcc-fortran")
             else:
                 installer.install("gfortran")
