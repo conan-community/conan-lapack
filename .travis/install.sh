@@ -11,6 +11,8 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
 
     if [[ "${CONAN_APPLE_CLANG_VERSIONS}" == "10.0" ]]; then
         brew link gcc
+    elif [[ "${CONAN_APPLE_CLANG_VERSIONS}" == "7.3" ]]; then
+        brew install gcc
     fi
 
     if which pyenv > /dev/null; then
