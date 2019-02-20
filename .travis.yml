@@ -101,7 +101,7 @@ matrix:
 
 install:
   - chmod +x .travis/install.sh
-  - travis_wait ./.travis/install.sh
+  - travis_wait 30 ./.travis/install.sh
 
 script:
   - chmod +x .travis/run.sh
