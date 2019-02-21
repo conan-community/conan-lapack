@@ -2,6 +2,7 @@ import os
 import shutil
 import glob
 from conans import ConanFile, CMake, tools
+from conans.model.version import Version
 from conans.tools import SystemPackageTool
 
 # python 2 / 3 StringIO import
@@ -75,7 +76,7 @@ conan_basic_setup()""")
                         installer.install("libgfortran-{}-dev".format(versionfloat))
                     else:
                         installer.install("libgfortran-{}-dev".format(int(versionfloat)))
-        if tools.os_info.is_macos:
+        if tools.os_info.is_macos and Version(self.settings.compiler.version) > "7.3":
             try:
                 installer.install("gcc", update=True, force=True)
             except Exception:
