@@ -76,7 +76,7 @@ conan_basic_setup()""")
                         installer.install("libgfortran-{}-dev".format(versionfloat))
                     else:
                         installer.install("libgfortran-{}-dev".format(int(versionfloat)))
-        if tools.os_info.is_macos and Version(self.settings.compiler.version) > "7.3":
+        if tools.os_info.is_macos and Version(self.settings.compiler.version.value) > "7.3":
             try:
                 installer.install("gcc", update=True, force=True)
             except Exception:
