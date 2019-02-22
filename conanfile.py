@@ -32,13 +32,14 @@ class LapackConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+        if self.settings.os == "Macos" and \
+            self.settings.compiler == "apple-clang" and \
+            Version(self.settings.compiler.versio.value) < "8.0":
+            raise ConanInvalidConfiguration("lapack requires apple-clang >=8.0")
         if self.options.visual_studio and not self.options.shared:
             raise ConanInvalidConfiguration("only shared builds are supported for Visual Studio")
         if self.settings.compiler == "Visual Studio" and not self.options.visual_studio:
             raise ConanInvalidConfiguration("This library needs option 'visual_studio=True' to be consumed")
-        if self.settings.compiler == "Visual Studio":
-            raise ConanInvalidConfiguration("This library cannot be built with Visual Studio. Please use MinGW to "
-                            "build it and option 'visual_studio=True' to build and consume.")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -61,9 +62,9 @@ class LapackConan(ConanFile):
                 installer.install("gcc-fortran")
             else:
                 installer.install("gfortran")
-                versionfloat = float(str(self.settings.compiler.version))
+                versionfloat = Version(self.settings.compiler.version.value)
                 if self.settings.compiler == "gcc":
-                    if versionfloat < 5.0:
+                    if versionfloat < "5.0":
                         installer.install("libgfortran-{}-dev".format(versionfloat))
                     else:
                         installer.install("libgfortran-{}-dev".format(int(versionfloat)))
@@ -84,6 +85,9 @@ class LapackConan(ConanFile):
         return cmake
 
     def build(self):
+        if self.settings.compiler == "Visual Studio":
+            raise ConanInvalidConfiguration("This library cannot be built with Visual Studio. Please use MinGW to "
+                            "build it and option 'visual_studio=True' to build and consume.")
         cmake = self._configure_cmake()
         for target in ["blas", "cblas", "lapack", "lapacke"]:
             cmake.build(target=target)
