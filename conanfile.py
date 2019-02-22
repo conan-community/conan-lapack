@@ -19,24 +19,16 @@ class LapackConan(ConanFile):
     version = "3.7.1"
     license = "BSD-3-Clause"
     homepage = "https://github.com/Reference-LAPACK/lapack"
-    description = """LAPACK is a library of Fortran subroutines for solving the most commonly
-occurring problems in numerical linear algebra"""
+    description = "Fortran subroutines for solving problems in numerical linear algebra"
     url = "https://github.com/conan-community/conan-lapack"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False], "visual_studio": [True, False]}
     default_options = {"shared": False, "visual_studio": False, "fPIC": True}
+    exports = "LICENSE"
+    exports_sources = "CMakeLists.txt"
     generators = "cmake"
-
-    @property
-    def source_subfolder(self):
-        return "sources"
-
-    def package_id(self):
-        if self.options.visual_studio:
-            self.info.settings.compiler = "Visual Studio"
-            self.info.settings.compiler.version = "ANY"
-            self.info.settings.compiler.runtime = "ANY"
-            self.info.settings.compiler.toolset = "ANY"
+    _source_subfolder = "source_subfolder"
+    _build_subfolder = "build_subfolder"
 
     def configure(self):
         del self.settings.compiler.libcxx
@@ -44,19 +36,18 @@ occurring problems in numerical linear algebra"""
             raise ConanInvalidConfiguration("only shared builds are supported for Visual Studio")
         if self.settings.compiler == "Visual Studio" and not self.options.visual_studio:
             raise ConanInvalidConfiguration("This library needs option 'visual_studio=True' to be consumed")
+        if self.settings.compiler == "Visual Studio":
+            raise ConanInvalidConfiguration("This library cannot be built with Visual Studio. Please use MinGW to "
+                            "build it and option 'visual_studio=True' to build and consume.")
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def source(self):
-        source_url = ("%s/archive/v%s.zip" % (self.homepage, self.version))
-        tools.get(source_url)
-        os.rename("%s-%s" % (self.name, self.version), self.source_subfolder)
-        tools.replace_in_file("sources/CMakeLists.txt", "project(LAPACK Fortran C)",
-                              """project(LAPACK Fortran C)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()""")
+        sha256 = "4e710786b887210cd3e0f1c8222e53c17f74bddc95d02c6afc20b18d6c136790"
+        tools.get("{}/archive/v{}.zip".format(self.homepage, self.version), sha256=sha256)
+        os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
 
     def build_requirements(self):
         if self.settings.os == "Windows":
@@ -83,60 +74,47 @@ conan_basic_setup()""")
                 self.output.warn("brew install gcc failed. Tying to fix it with 'brew link'")
                 self.run("brew link --overwrite gcc")
 
-    def build(self):
-        if self.settings.compiler == "Visual Studio":
-            raise Exception("This library cannot be built with Visual Studio. Please use MinGW to "
-                            "build it and option 'visual_studio=True' to build and consume.")
+    def _configure_cmake(self):
         cmake = CMake(self)
-        cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
         cmake.definitions["CMAKE_GNUtoMS"] = self.options.visual_studio
         cmake.definitions["BUILD_TESTING"] = False
         cmake.definitions["LAPACKE"] = True
         cmake.definitions["CBLAS"] = True
+        cmake.configure(build_dir=self._build_subfolder)
+        return cmake
 
-        cmake.configure(source_folder=self.source_subfolder)
-        cmake.build(target="blas")
-        cmake.build(target="cblas")
-        cmake.build(target="lapack")
-        cmake.build(target="lapacke")
+    def build(self):
+        cmake = self._configure_cmake()
+        for target in ["blas", "cblas", "lapack", "lapacke"]:
+            cmake.build(target=target)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self.source_subfolder, ignore_case=True,
-                  keep_path=False)
-        self.copy(pattern="*.h", dst="include", src="include", keep_path=False)
-        self.copy(pattern="*blas*.dll", dst="bin", src="bin", keep_path=False)
-        self.copy(pattern="*lapack*.dll", dst="bin", src="bin", keep_path=False)
+        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        cmake = self._configure_cmake()
+        cmake.install()
+
         if self.options.visual_studio:
-            if self.options.shared:
-                self.copy(pattern="*blas*.dll.a", dst="lib", src="lib", keep_path=False)
-                self.copy(pattern="*lapack*.dll.a", dst="lib", src="lib", keep_path=False)
-            else:
-                self.copy(pattern="*blas*.lib", dst="lib", src="lib", keep_path=False)
-                self.copy(pattern="*lapack*.lib", dst="lib", src="lib", keep_path=False)
-        else:
-            self.copy(pattern="*blas*.dll.a", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*lapack*.dll.a", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*blas*.so*", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*lapack*.so*", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*blas*.dylib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*lapack*.dylib", dst="lib", src="lib", keep_path=False)
-        if not self.options.visual_studio:
-            self.copy(pattern="*blas.a", dst="lib", src="lib", keep_path=False)
-            self.copy(pattern="*lapack*.a", dst="lib", src="lib", keep_path=False)
-        for bin_path in self.deps_cpp_info.bin_paths:  # Copy MinGW dlls for Visual Studio consumers
-            self.copy(pattern="*seh*.dll", dst="bin", src=bin_path, keep_path=False)
-            self.copy(pattern="*sjlj*.dll", dst="bin", src=bin_path, keep_path=False)
-            self.copy(pattern="*dwarf2*.dll", dst="bin", src=bin_path, keep_path=False)
-            self.copy(pattern="*quadmath*.dll", dst="bin", src=bin_path, keep_path=False)
-            self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
-            self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
-        if self.options.visual_studio:
+            for bin_path in self.deps_cpp_info.bin_paths:  # Copy MinGW dlls for Visual Studio consumers
+                self.copy(pattern="*seh*.dll", dst="bin", src=bin_path, keep_path=False)
+                self.copy(pattern="*sjlj*.dll", dst="bin", src=bin_path, keep_path=False)
+                self.copy(pattern="*dwarf2*.dll", dst="bin", src=bin_path, keep_path=False)
+                self.copy(pattern="*quadmath*.dll", dst="bin", src=bin_path, keep_path=False)
+                self.copy(pattern="*winpthread*.dll", dst="bin", src=bin_path, keep_path=False)
+                self.copy(pattern="*gfortran*.dll", dst="bin", src=bin_path, keep_path=False)
+
             with tools.chdir(os.path.join(self.package_folder, "lib")):
                 libs = glob.glob("lib*.a")
                 for lib in libs:
                     vslib = lib[3:-2] + ".lib"
                     self.output.info('renaming %s into %s' % (lib, vslib))
                     shutil.move(lib, vslib)
+
+    def package_id(self):
+        if self.options.visual_studio:
+            self.info.settings.compiler = "Visual Studio"
+            self.info.settings.compiler.version = "ANY"
+            self.info.settings.compiler.runtime = "ANY"
+            self.info.settings.compiler.toolset = "ANY"
 
     def package_info(self):
         # the order is important for static builds
