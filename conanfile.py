@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os
 import shutil
 import glob
 from conans import ConanFile, CMake, tools
 from conans.model.version import Version
+from conans.errors import ConanException
 from conans.tools import SystemPackageTool
 
 # python 2 / 3 StringIO import
@@ -123,6 +126,8 @@ class LapackConan(ConanFile):
     def package_info(self):
         # the order is important for static builds
         self.cpp_info.libs = ["lapacke", "lapack", "blas", "cblas", "gfortran", "quadmath"]
+        if self.settings.os == "Linux":
+            self.cpp_info.libs.append("m")
         if self.options.visual_studio and self.options.shared:
             self.cpp_info.libs = ["lapacke.dll.lib", "lapack.dll.lib", "blas.dll.lib", "cblas.dll.lib"]
         self.cpp_info.libdirs = ["lib"]
@@ -130,7 +135,7 @@ class LapackConan(ConanFile):
             brewout = StringIO()
             try:
                 self.run("gfortran --print-file-name libgfortran.dylib", output=brewout)
-            except Exception as e:
-                raise Exception("Failed to run command: {}. Output: {}".format(e, brewout.getvalue()))
+            except Exception as error:
+                raise ConanException("Failed to run command: {}. Output: {}".format(error, brewout.getvalue()))
             lib = os.path.dirname(os.path.normpath(brewout.getvalue().strip()))
             self.cpp_info.libdirs.append(lib)
