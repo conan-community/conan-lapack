@@ -38,7 +38,7 @@ class LapackConan(ConanFile):
         del self.settings.compiler.libcxx
         if self.settings.os == "Macos" and \
             self.settings.compiler == "apple-clang" and \
-            Version(self.settings.compiler.versio.value) < "8.0":
+            Version(self.settings.compiler.version.value) < "8.0":
             raise ConanInvalidConfiguration("lapack requires apple-clang >=8.0")
         if self.options.visual_studio and not self.options.shared:
             raise ConanInvalidConfiguration("only shared builds are supported for Visual Studio")
