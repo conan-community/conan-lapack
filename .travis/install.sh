@@ -9,6 +9,10 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
     brew install pyenv-virtualenv
     brew install cmake || true
 
+    if [[ "${CONAN_APPLE_CLANG_VERSIONS}" == "10.0" ]]; then
+        brew link gcc
+    fi
+
     if which pyenv > /dev/null; then
         eval "$(pyenv init -)"
     fi
