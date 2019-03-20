@@ -6,7 +6,7 @@ environment:
     PYTHON_ARCH: "32"
 
     matrix:
-        - MINGW_CONFIGURATIONS: "7@x864@seh@posix"
+        - MINGW_CONFIGURATIONS: "7@x86@seh@posix"
           BUILD_VISUAL_STUDIO: 1
         - MINGW_CONFIGURATIONS: "7@x86_64@seh@posix"
           BUILD_VISUAL_STUDIO: 1
