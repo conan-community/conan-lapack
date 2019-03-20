@@ -7,12 +7,8 @@ from cpt.packager import ConanMultiPackager
 
 if __name__ == "__main__":
     builder = ConanMultiPackager()
+    builder.add_common_builds()
     if os.getenv("BUILD_VISUAL_STUDIO"):
-        options = {"lapack:visual_studio": True, "lapack:shared": True}
-        settings = {"compiler": "gcc", "compiler.version": "7", "os": "Windows", "arch": "x86_64"}
-        for build_type in ["Release", "Debug"]:
-            settings.update({"build_type": build_type})
-            builder.add(copy.copy(settings), options, {}, {})
-    else:
-        builder.add_common_builds()
+        builder.remove_build_if(lambda build: not build.options["lapack:shared"])
+        builder.update_build_if(lambda build: True, new_options={"lapack:visual_studio": True})
     builder.run()
