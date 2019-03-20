@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
 from cpt.packager import ConanMultiPackager
 
 
 if __name__ == "__main__":
     builder = ConanMultiPackager()
-    builder.add_common_builds()
+    if os.getenv("BUILD_VISUAL_STUDIO"):
+        options = {"visual_studio": True, "shared": True}
+        settings = {"compiler": "gcc", "compiler.version": "7"}
+        for build_type in ["Release", "Debug"]:
+            settings.update({"build_type": build_type})
+            builder.add( options, {}, {})
+    else:
+        builder.add_common_builds()
     builder.run()
