@@ -59,41 +59,21 @@
 
 /* Includes */
 #include <stdio.h>
-
-#include <complex>
-#define lapack_complex_float std::complex<float>
-#define lapack_complex_double std::complex<double>
-
 #include <lapacke.h>
 
-/* Main program */
-int main (int argc, const char * argv[])
-{
-   /* Locals */
+ int main() {
    double A[5][3] = {{1,2,3},{4,5,1},{3,5,2},{4,1,4},{2,5,3}};
    double b[5][2] = {{-10,12},{14,16},{18,-3},{14,12},{16,16}};
-   lapack_int info,m,n,lda,ldb,nrhs;
 
-   /* Initialization */
-   m = 5;
-   n = 3;
-   nrhs = 2;
-   lda = 5;
-   ldb = 5;
+   const lapack_int m = 5;
+   const lapack_int n = 3;
+   const lapack_int lda = 5;
+   const lapack_int ldb = 5;
+   const lapack_int nrhs = 2;
 
-   /* Print Entry Matrix */
-   //print_matrix_colmajor( "Entry Matrix A", m, n, *A, lda );
-   /* Print Right Rand Side */
-//    print_matrix_colmajor( "Right Hand Side b", n, nrhs, *b, ldb );
-//    printf( "\n" );
+   printf("LAPACKE_dgels (col-major, high-level) Example Program Results\n" );
+   const lapack_int info = LAPACKE_dgels(LAPACK_COL_MAJOR,'N',m, n, nrhs, *A, lda, *b, ldb);
+   printf( "Solution: %d %d %lf %d\n", n, nrhs, b[0][0], ldb);
 
-   /* Executable statements */
-   //printf( "LAPACKE_dgels (col-major, high-level) Example Program Results\n" );
-   /* Solve least squares problem*/
-   info = LAPACKE_dgels(LAPACK_COL_MAJOR,'N',m, n, nrhs, *A, lda, *b, ldb);
-
-   /* Print Solution */
-   //print_matrix_colmajor( "Solution", n, nrhs, *b, ldb );
-   //printf( "\n" );
-   exit( info );
-} /* End of LAPACKE_dgels Example */
+   return info;
+}

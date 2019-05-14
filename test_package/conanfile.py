@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from conans import ConanFile, CMake, tools, RunEnvironment
+from conans import ConanFile, CMake
 import os
 
 
@@ -14,21 +14,6 @@ class TestPackageConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def imports(self):
-        self.copy("*lapack*.dll", dst="bin", src="bin")
-        self.copy("*blas*.dll", dst="bin", src="bin")
-        self.copy("*gfortran*.dll", dst="bin", src="bin")
-        self.copy("*gcc_*.dll", dst="bin", src="bin")
-        self.copy("*quadmath*.dll*", dst="bin", src="bin")
-        self.copy("*winpthread*.dll*", dst="bin", src="bin")
-        self.copy("*lapack*.dylib*", dst="bin", src="lib")
-        self.copy("*blas*.dylib*", dst="bin", src="lib")
-        self.copy("*gfortran*.dylib*", dst="bin", src="bin")
-        self.copy("*gcc_*.dylib*", dst="bin", src="bin")
-        self.copy("*quadmath*.dylib*", dst="bin", src="bin")
-        self.copy("*winpthread*.dylib*", dst="bin", src="bin")
-
     def test(self):
-        with tools.environment_append(RunEnvironment(self).vars):
-            bin_path = os.path.join("bin", "test_package")
-            self.run(bin_path, run_environment=True)
+        bin_path = os.path.join("bin", "test_package")
+        self.run(bin_path, run_environment=True)

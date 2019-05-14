@@ -10,7 +10,7 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
     brew install cmake || true
 
     if [[ "${CONAN_APPLE_CLANG_VERSIONS}" == "10.0" ]]; then
-        brew install gfortran
+        brew link gcc
     fi
 
     if which pyenv > /dev/null; then
