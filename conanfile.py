@@ -120,9 +120,9 @@ class LapackConan(ConanFile):
     def package_id(self):
         if self.options.visual_studio:
             self.info.settings.compiler = "Visual Studio"
-            self.info.settings.compiler.version = "ANY"
-            self.info.settings.compiler.runtime = "ANY"
-            self.info.settings.compiler.toolset = "ANY"
+            del self.info.settings.compiler.version
+            del self.info.settings.compiler.runtime
+            del self.info.settings.compiler.toolset
 
     def package_info(self):
         # the order is important for static builds
