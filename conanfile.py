@@ -19,7 +19,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class LapackConan(ConanFile):
     name = "lapack"
-    version = "3.7.1"
+    version = "3.8.0"
     license = "BSD-3-Clause"
     homepage = "https://github.com/Reference-LAPACK/lapack"
     description = "Fortran subroutines for solving problems in numerical linear algebra"
@@ -50,7 +50,7 @@ class LapackConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        sha256 = "4e710786b887210cd3e0f1c8222e53c17f74bddc95d02c6afc20b18d6c136790"
+        sha256 = "5cd096b6e307a3dbf8ef6a34d7c593ec228dd5d67ce69e0e1bd77f8b0e07fec4"
         tools.get("{}/archive/v{}.zip".format(self.homepage, self.version), sha256=sha256)
         os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
 
