@@ -62,13 +62,16 @@ class LapackConan(ConanFile):
         installer = SystemPackageTool()
         if tools.os_info.is_linux:
             if not os.system("which gfortran"):
+                # Prefere local install
                 return
-            if tools.os_info.with_pacman or tools.os_info.with_yum:
-                try:
-                    installer.install("gcc-fortran")
-                except:
-                    installer.install("gcc-gfortran")
+            if tools.os_info.with_zypper:
+                # Package for: OpenSUSE
+                installer.install("gcc-fortran")
+            elif tools.os_info.with_pacman or tools.os_info.with_yum:
+                # Package for: CentOS, ...
+                installer.install("gcc-gfortran")
             else:
+                # Package for: Arch, Ubuntu, ...
                 installer.install("gfortran")
                 versionfloat = Version(self.settings.compiler.version.value)
                 if self.settings.compiler == "gcc":
