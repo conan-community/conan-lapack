@@ -82,7 +82,7 @@ class LapackConan(ConanFile):
             except Exception:
                 self.output.warn("brew install gcc failed. Tying to fix it with 'brew link'")
                 self.run("brew link --overwrite gcc")
-            
+
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["CMAKE_GNUtoMS"] = self.options.visual_studio
@@ -120,7 +120,7 @@ class LapackConan(ConanFile):
                     vslib = lib[3:-2] + ".lib"
                     self.output.info('renaming %s into %s' % (lib, vslib))
                     shutil.move(lib, vslib)
-                    
+
     def package_id(self):
         if self.options.visual_studio:
             self.info.settings.compiler = "Visual Studio"
