@@ -58,6 +58,31 @@ class LapackConan(ConanFile):
         if self.settings.os == "Windows":
             self.build_requires("mingw_installer/1.0@conan/stable")
 
+    def system_requirements(self):
+        installer = SystemPackageTool()
+        if tools.os_info.is_linux:
+            if not os.system("which gfortran"):
+                return
+            if tools.os_info.with_pacman or tools.os_info.with_yum:
+                try:
+                    installer.install("gcc-fortran")
+                except:
+                    installer.install("gcc-gfortran")
+            else:
+                installer.install("gfortran")
+                versionfloat = Version(self.settings.compiler.version.value)
+                if self.settings.compiler == "gcc":
+                    if versionfloat < "5.0":
+                        installer.install("libgfortran-{}-dev".format(versionfloat))
+                    else:
+                        installer.install("libgfortran-{}-dev".format(int(versionfloat)))
+        if tools.os_info.is_macos and Version(self.settings.compiler.version.value) > "7.3":
+            try:
+                installer.install("gcc", update=True, force=True)
+            except Exception:
+                self.output.warn("brew install gcc failed. Tying to fix it with 'brew link'")
+                self.run("brew link --overwrite gcc")
+            
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["CMAKE_GNUtoMS"] = self.options.visual_studio
@@ -95,30 +120,6 @@ class LapackConan(ConanFile):
                     vslib = lib[3:-2] + ".lib"
                     self.output.info('renaming %s into %s' % (lib, vslib))
                     shutil.move(lib, vslib)
-
-    def system_requirements(self):
-        installer = SystemPackageTool()
-        if tools.os_info.is_linux and not os.system("which gfortran"):
-            if tools.os_info.with_pacman or \
-                tools.os_info.with_yum:
-                try:
-                    installer.install("gcc-fortran")
-                except:
-                    installer.install("gcc-gfortran")
-            else:
-                installer.install("gfortran")
-                versionfloat = Version(self.settings.compiler.version.value)
-                if self.settings.compiler == "gcc":
-                    if versionfloat < "5.0":
-                        installer.install("libgfortran-{}-dev".format(versionfloat))
-                    else:
-                        installer.install("libgfortran-{}-dev".format(int(versionfloat)))
-        if tools.os_info.is_macos and Version(self.settings.compiler.version.value) > "7.3":
-            try:
-                installer.install("gcc", update=True, force=True)
-            except Exception:
-                self.output.warn("brew install gcc failed. Tying to fix it with 'brew link'")
-                self.run("brew link --overwrite gcc")
                     
     def package_id(self):
         if self.options.visual_studio:
