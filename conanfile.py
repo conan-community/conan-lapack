@@ -59,19 +59,19 @@ class LapackConan(ConanFile):
             self.build_requires("mingw_installer/1.0@conan/stable")
 
     def system_requirements(self):        
-        if not tools.which("gfortran"):
+        if tools.which("gfortran") is not None:
             # Prefere local install
             return
         installer = SystemPackageTool()
         if tools.os_info.is_linux:
-            if tools.os_info.with_zypper:
-                # Package for: OpenSUSE
+            if tools.os_info.with_zypper or tools.os_info.with_pacman:
+                # Package for: OpenSUSE, Arch 
                 installer.install("gcc-fortran")
-            elif tools.os_info.with_pacman or tools.os_info.with_yum:
-                # Package for: CentOS, ...
+            elif tools.os_info.with_yum:
+                # Package for: CentOS
                 installer.install("gcc-gfortran")
             else:
-                # Package for: Arch, Ubuntu, ...
+                # Package for: Ubuntu, ...
                 installer.install("gfortran")
                 versionfloat = Version(self.settings.compiler.version.value)
                 if self.settings.compiler == "gcc":
