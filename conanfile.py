@@ -75,7 +75,7 @@ class LapackConan(ConanFile):
                     if versionfloat < "5.0":
                         installer.install("libgfortran-{}-dev".format(versionfloat))
                     else:
-                        installer.install("libgfortran-{}-dev".format(int(versionfloat)))
+                        installer.install("libgfortran-{}-dev".format(int(float(versionfloat))))
         if tools.os_info.is_macos and Version(self.settings.compiler.version.value) > "7.3":
             try:
                 installer.install("gcc", update=True, force=True)
