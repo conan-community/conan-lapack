@@ -1,3 +1,10 @@
+## Package Deprecation Notice
+
+Conan Community will keep this version of the package on Github and Bintray, however it will no longer be maintained or supported.
+Users are advised to update their projects to use the official Conan package maintained by the library author immediately.
+
+If you want to request a new version for this project, open an issue for [Conan Center Index](https://github.com/conan-io/conan-center-index/)
+
 [![Download](https://api.bintray.com/packages/conan-community/conan/lapack%3Aconan/images/download.svg) ](https://bintray.com/conan-community/conan/lapack%3Aconan/_latestVersion)
 [![Build Status Travis](https://travis-ci.org/conan-community/conan-lapack.svg)](https://travis-ci.org/conan-community/conan-lapack)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/github/conan-community/conan-lapack?svg=true)](https://ci.appveyor.com/project/ConanCIintegration/conan-lapack)

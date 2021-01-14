@@ -31,6 +31,7 @@ class LapackConan(ConanFile):
     exports_sources = "CMakeLists.txt"
     generators = "cmake"
     requires = "zlib/1.2.11@conan/stable"
+    deprecated = True
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
 
